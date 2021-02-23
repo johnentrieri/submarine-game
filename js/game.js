@@ -50,6 +50,9 @@ const target = {
 // Initialize Score
 let score = -1;
 
+// Initialize Timer
+let timer = 30 * 1000;
+
 // Begin Game Loop
 setInterval( GameLoop, timeBetweenFrames);
 
@@ -65,6 +68,7 @@ function GameLoop() {
     DrawTarget();
     DrawSubmarine();
     DrawTorpedo();
+    DisplayTimer();
     DisplayScore();
 }
 
@@ -198,10 +202,18 @@ function DrawTarget() {
     }
 }
 
+function DisplayTimer() {
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Time: " + Math.ceil(timer/1000), 10, 50);
+    timer -= timeBetweenFrames
+    if ( timer < 0) { timer = 0; }
+}
+
 function DisplayScore() {
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText("Score: " + score, 10, 50); 
+    ctx.fillText("Score: " + score, 10, 90); 
 }
 
 function DrawSea() {
