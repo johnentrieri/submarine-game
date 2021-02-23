@@ -3,7 +3,7 @@ const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
 // Keyboard Input Processing
-const keyMap = { up: false, down: false, left: false, right: false, fire: false };
+const keyMap = { up: false, down: false, left: false, right: false, fire: false, replay: false };
 window.addEventListener("keydown", ProcessKeydown, false);
 window.addEventListener("keyup", ProcessKeyup, false);
 
@@ -16,8 +16,10 @@ const sea = document.getElementById("sea");
 // Submarine
 const submarine = {
     img : document.getElementById("subR"), //Image
+    startingX : 10,
+    startingY : 100,
     x : 10, // X Position
-    y : 10, // Y Position
+    y : 100, // Y Position
     speed : 4, // Speed
     width : document.getElementById("subR").width, // Width
     height : document.getElementById("subR").height, // Height
@@ -51,7 +53,8 @@ const target = {
 let score = -1;
 
 // Initialize Timer
-let timer = 30 * 1000;
+const maxTimer = 2;
+let timer = maxTimer * 1000;
 
 // Begin Game Loop
 setInterval( GameLoop, timeBetweenFrames);
@@ -59,17 +62,24 @@ setInterval( GameLoop, timeBetweenFrames);
 // Main Processing Loop
 function GameLoop() {
     ClearCanvas();
-    ShipMovement();
-    TorpedoProcessing();
-    ShipCanvasCollisions();
-    TorpedoCanvasCollisions();
-    TorpedoTargetCollisions();
     DrawSea();
-    DrawTarget();
-    DrawSubmarine();
-    DrawTorpedo();
-    DisplayTimer();
-    DisplayScore();
+
+    if (timer > 0) {
+        ShipMovement();
+        TorpedoProcessing();
+        ShipCanvasCollisions();
+        TorpedoCanvasCollisions();
+        TorpedoTargetCollisions();    
+        DrawTarget();
+        DrawSubmarine();
+        DrawTorpedo();
+        DisplayTimer();
+        DisplayScore();
+    } else {
+        DisplayTimer();
+        DisplayScore();
+        GameOver();
+    }
 }
 
 
@@ -203,17 +213,36 @@ function DrawTarget() {
 }
 
 function DisplayTimer() {
-    ctx.font = "30px Arial";
+    ctx.font = "20px Arial";
     ctx.fillStyle = "white";
+    ctx.textAlign = "left";
     ctx.fillText("Time: " + Math.ceil(timer/1000), 10, 50);
     timer -= timeBetweenFrames
     if ( timer < 0) { timer = 0; }
 }
 
 function DisplayScore() {
-    ctx.font = "30px Arial";
+    ctx.font = "20px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText("Score: " + score, 10, 90); 
+    ctx.textAlign = "left";
+    ctx.fillText("Score: " + score, 10, 80); 
+}
+
+function GameOver() {
+    ctx.font = "60px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+    ctx.font = "20px Arial";
+    ctx.fillText("Press Enter to Play Again", canvas.width / 2, canvas.height / 2 + 40);
+    if (keyMap.replay) {
+        torpedo.isActive = false;
+        target.isActive = false;
+        submarine.x = submarine.startingX;
+        submarine.y = submarine.startingY;
+        score = 0;
+        timer = maxTimer * 1000;
+    }
 }
 
 function DrawSea() {
@@ -230,6 +259,7 @@ function ProcessKeydown(e) {
     if (e.key == 's' || e.key == 'ArrowDown') { keyMap.down = true; }
     if (e.key == 'd' || e.key == 'ArrowRight') { keyMap.right = true; }
     if (e.key == ' ') { keyMap.fire = true; }
+    if (e.key == 'Enter') { keyMap.replay = true; }
 }
 
 function ProcessKeyup(e) {
@@ -238,5 +268,6 @@ function ProcessKeyup(e) {
     if (e.key == 's' || e.key == 'ArrowDown') { keyMap.down = false; }
     if (e.key == 'd' || e.key == 'ArrowRight') { keyMap.right = false; }
     if (e.key == ' ') { keyMap.fire = false; }
+    if (e.key == 'Enter') { keyMap.replay = false; }
 }
 
