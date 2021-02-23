@@ -25,6 +25,18 @@ const submarine = {
     isFacingRight : true
 }
 
+// Torpedo
+const torpedo = {
+    img : document.getElementById("torpedoL"), //Image
+    x : 0, // X Position
+    y : 0, // Y Position
+    speed : 11, // Speed
+    width : document.getElementById("torpedoL").width, // Width
+    height : document.getElementById("torpedoL").height, // Height
+    isActive : false,
+    isFacingRight : true
+}
+
 // Begin Game Loop
 setInterval( GameLoop, timeBetweenFrames);
 
@@ -32,9 +44,12 @@ setInterval( GameLoop, timeBetweenFrames);
 function GameLoop() {
     ClearCanvas();
     ShipMovement();
+    TorpedoProcessing();
     ShipCanvasCollisions();
+    TorpedoCanvasCollisions();
     DrawSea();
     DrawSubmarine();
+    DrawTorpedo();
 }
 
 
@@ -58,6 +73,42 @@ function ShipMovement() {
     }    
 }
 
+function TorpedoProcessing() {
+
+    // Fire Torpedo
+    if (keyMap.fire && !torpedo.isActive) { FireTorpedo(); }
+
+    // Handle Torpedo Movement
+    if (torpedo.isActive) {
+        if (torpedo.isFacingRight) {
+            torpedo.x += torpedo.speed;
+        } else {
+            torpedo.x -= torpedo.speed;
+        }
+    }    
+}
+
+function FireTorpedo() {
+
+    // Spawn Torpedo Facing Same Direction as Submarine
+    if (submarine.isFacingRight) {
+        torpedo.img = document.getElementById("torpedoR");
+        torpedo.isFacingRight = true;
+    } else {
+        torpedo.img = document.getElementById("torpedoL");
+        torpedo.isFacingRight = false;
+    }
+
+    // Spawn Torpedo Underneath Submarine
+    torpedo.x = submarine.x + ( submarine.width / 2 );
+    torpedo.y = submarine.y + (submarine.height);
+    torpedo.isActive = true;
+}
+
+function ExplodeTorpedo() {
+    torpedo.isActive = false;
+}
+
 function ShipCanvasCollisions() {
     const xMin = 0;
     const yMin = 0;
@@ -70,9 +121,27 @@ function ShipCanvasCollisions() {
     if ( submarine.y > yMax) { submarine.y = yMax; }
 }
 
+function TorpedoCanvasCollisions() {
+    const xMin = 0;
+    const yMin = 0;
+    const xMax = canvas.width - torpedo.width;
+    const yMax = canvas.height - torpedo.height;
+
+    if ( torpedo.x < xMin) { ExplodeTorpedo(); }
+    if ( torpedo.x > xMax) { ExplodeTorpedo(); }
+    if ( torpedo.y < yMin) { ExplodeTorpedo(); }
+    if ( torpedo.y > yMax) { ExplodeTorpedo(); }
+}
+
 function DrawSubmarine() {
     if (submarine.isActive) {
         ctx.drawImage(submarine.img, submarine.x, submarine.y, submarine.width, submarine.height);
+    }
+}
+
+function DrawTorpedo() {
+    if (torpedo.isActive) {
+        ctx.drawImage(torpedo.img, torpedo.x, torpedo.y, torpedo.width, torpedo.height);
     }
 }
 
