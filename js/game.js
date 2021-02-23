@@ -37,6 +37,16 @@ const torpedo = {
     isFacingRight : true
 }
 
+// Target
+const target = {
+    img : document.getElementById("target"), //Image
+    x : 0, // X Position
+    y : 0, // Y Position
+    width : document.getElementById("target").width, // Width
+    height : document.getElementById("target").height, // Height
+    isActive : false,
+}
+
 // Begin Game Loop
 setInterval( GameLoop, timeBetweenFrames);
 
@@ -47,7 +57,9 @@ function GameLoop() {
     TorpedoProcessing();
     ShipCanvasCollisions();
     TorpedoCanvasCollisions();
+    TorpedoTargetCollisions();
     DrawSea();
+    DrawTarget();
     DrawSubmarine();
     DrawTorpedo();
 }
@@ -109,6 +121,10 @@ function ExplodeTorpedo() {
     torpedo.isActive = false;
 }
 
+function ExplodeTarget() {
+    target.isActive = false;
+}
+
 function ShipCanvasCollisions() {
     const xMin = 0;
     const yMin = 0;
@@ -133,6 +149,23 @@ function TorpedoCanvasCollisions() {
     if ( torpedo.y > yMax) { ExplodeTorpedo(); }
 }
 
+function TorpedoTargetCollisions() {
+    const torpedoX1 = torpedo.x;
+    const torpedoY1 = torpedo.y;
+    const torpedoX2 = torpedo.x + torpedo.width;
+    const torpedoY2 = torpedo.y + torpedo.height;
+
+    const targetX1 = target.x;
+    const targetY1 = target.y;
+    const targetX2 = target.x + target.width;
+    const targetY2 = target.y + target.height;
+
+    if ((torpedoX1 <= targetX2) && (torpedoX2 >= targetX1) && (torpedoY1 <= targetY2) && (torpedoY2 >= targetY1)) {
+        ExplodeTorpedo();
+        ExplodeTarget();
+    }
+}
+
 function DrawSubmarine() {
     if (submarine.isActive) {
         ctx.drawImage(submarine.img, submarine.x, submarine.y, submarine.width, submarine.height);
@@ -142,6 +175,21 @@ function DrawSubmarine() {
 function DrawTorpedo() {
     if (torpedo.isActive) {
         ctx.drawImage(torpedo.img, torpedo.x, torpedo.y, torpedo.width, torpedo.height);
+    }
+}
+
+function DrawTarget() {
+    if (target.isActive) {
+        ctx.drawImage(target.img, target.x, target.y, target.width, target.height);
+    } else {
+        const xMax = canvas.width - target.width;
+        const yMax = canvas.height - target.height;
+
+        target.x = Math.floor(Math.random() * xMax);
+        target.y = Math.floor(Math.random() * yMax);
+
+        target.isActive = true;
+        ctx.drawImage(target.img, target.x, target.y, target.width, target.height);
     }
 }
 
