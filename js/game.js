@@ -47,6 +47,9 @@ const target = {
     isActive : false,
 }
 
+// Initialize Score
+let score = -1;
+
 // Begin Game Loop
 setInterval( GameLoop, timeBetweenFrames);
 
@@ -62,6 +65,7 @@ function GameLoop() {
     DrawTarget();
     DrawSubmarine();
     DrawTorpedo();
+    DisplayScore();
 }
 
 
@@ -163,6 +167,7 @@ function TorpedoTargetCollisions() {
     if ((torpedoX1 <= targetX2) && (torpedoX2 >= targetX1) && (torpedoY1 <= targetY2) && (torpedoY2 >= targetY1)) {
         ExplodeTorpedo();
         ExplodeTarget();
+        score++;
     }
 }
 
@@ -191,6 +196,12 @@ function DrawTarget() {
         target.isActive = true;
         ctx.drawImage(target.img, target.x, target.y, target.width, target.height);
     }
+}
+
+function DisplayScore() {
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Score: " + score, 10, 50); 
 }
 
 function DrawSea() {
